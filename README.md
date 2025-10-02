@@ -63,6 +63,29 @@ Contains AWS CloudFormation security issues including:
 - DynamoDB tables without encryption
 - ECR repositories without image scanning
 
+### 5. `app.py` - Python Application
+Contains hardcoded secrets and credentials including:
+- Database passwords
+- API keys and tokens
+- AWS credentials
+- Private keys
+- JWT secrets
+- Slack webhooks
+- GitHub tokens
+- Email credentials
+- Encryption keys
+
+### 6. `deploy.sh` - Shell Script
+Contains deployment script security issues including:
+- Hardcoded database credentials
+- AWS access keys and secrets
+- GitHub tokens
+- Docker registry passwords
+- API keys in URLs
+- Slack webhook URLs
+- Git credentials in URLs
+- Basic authentication credentials
+
 ## Running Checkov
 
 To scan this repository with Checkov:
@@ -94,7 +117,8 @@ When running Checkov on this repository, you should see:
 - **CloudFormation**: ~43 failed checks
 - **Kubernetes**: ~50 failed checks
 - **Dockerfile**: ~5 failed checks
-- **Secrets**: ~5 detected secrets
+- **Secrets**: Multiple secrets detected across all files (deduplicated by hash)
+- **Total**: 148+ failed checks across all frameworks
 
 ## Purpose
 
