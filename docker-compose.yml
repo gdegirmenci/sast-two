@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # HIGH SEVERITY: Running container as root with privileged mode
+  web:
+    image: nginx:latest
+    privileged: true  # CKV_DOCKER_PRIVILEGED: Privileged mode grants all capabilities
+    network_mode: host  # CKV_DOCKER_HOST_NETWORK: Host network bypasses network isolation
+    volumes:
+      - /:/host  # CKV_DOCKER_ROOT_MOUNT: Mounting root filesystem
+    environment:
+      # HIGH SEVERITY: Hardcoded credentials in environment
+      - DATABASE_PASSWORD=SuperSecret123!  # CKV_SECRET
+      - API_KEY=sk-live-1234567890abcdef
+    ports:
+      - "80:80"
+
+  # MEDIUM SEVERITY: Container without resource limits
+  app:
+    image: myapp:latest
+    # CKV_DOCKER_NO_LIMITS: No CPU or memory limits (DoS risk)
+    environment:
+      - DEBUG=true  # CKV_DEBUG_ENABLED
+    cap_add:
+      - ALL  # CKV_DOCKER_CAPABILITIES: Granting all capabilities
+    security_opt:
+      - seccomp:unconfined  # CKV_DOCKER_SECCOMP: Disabling seccomp
+      - apparmor:unconfined
+    user: root  # CKV_DOCKER_USER_ROOT: Running as root user
+
+  # LOW SEVERITY: Using latest tag and missing health check
+  database:
+    image: postgres:latest  # CKV_DOCKER_LATEST_TAG: Using latest tag (version pinning recommended)
+    # CKV_DOCKER_HEALTHCHECK: No healthcheck defined
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust  # MEDIUM: Trusting all connections
+      - POSTGRES_PASSWORD=password123
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    # CKV_DOCKER_NO_READONLY: Root filesystem not read-only
+
+volumes:
+  db_data:
